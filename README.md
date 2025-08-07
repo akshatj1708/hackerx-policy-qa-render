@@ -53,7 +53,11 @@ The API will be available at `http://localhost:8000`
    - **Name**: hackerx-rag (or your preferred name)
    - **Region**: Choose the one closest to your users
    - **Branch**: main (or your preferred branch)
-   - **Build Command**: `pip install -r requirements-optimized.txt`
+   - **Build Command**:
+     ```
+     python -m pip install --upgrade pip
+     pip install -r requirements-optimized.txt
+     ```
    - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
    - **Plan**: Free
 6. Add the following environment variables:
