@@ -16,10 +16,17 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Install only necessary build dependencies first
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# Install PyTorch CPU only first
+# Install PyTorch CPU only first with specific index
 RUN pip install --no-cache-dir torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
 
-# Install other requirements
+# Install core dependencies first
+RUN pip install --no-cache-dir \
+    numpy==1.26.4 \
+    safetensors==0.4.2 \
+    huggingface-hub==0.21.4 \
+    filelock==3.13.1
+
+# Install remaining requirements
 COPY requirements-optimized.txt .
 RUN pip install --no-cache-dir -r requirements-optimized.txt
 
