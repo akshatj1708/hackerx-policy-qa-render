@@ -55,10 +55,8 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONFAULTHANDLER=1
 
 # Clean up Python cache
-RUN find /usr/local -type d -name "__pycache__" -exec rm -r {} + \
-    && find /usr/local -name "*.pyc" -delete \
-    && find /root/.local -type d -name "__pycache__" -exec rm -r {} + \
-    && find /root/.local -name "*.pyc" -delete
+RUN find /usr/local -type d -name "__pycache__" -exec rm -r {} + 2>/dev/null || true \
+    && find /usr/local -name "*.pyc" -delete 2>/dev/null || true
 
 # Expose the port the app runs on
 EXPOSE $PORT
