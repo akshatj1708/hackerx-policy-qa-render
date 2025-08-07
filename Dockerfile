@@ -3,13 +3,15 @@ FROM python:3.10-alpine as builder
 
 WORKDIR /app
 
-# Install build dependencies
+# Install build dependencies and upgrade pip
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
     musl-dev \
     libffi-dev \
     openssl-dev \
-    python3-dev
+    python3-dev \
+    py3-pip && \
+    pip install --upgrade pip
 
 # Install Python dependencies with optimized flags
 COPY requirements-optimized.txt .
