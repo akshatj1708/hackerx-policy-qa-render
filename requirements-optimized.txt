@@ -1,25 +1,32 @@
-# Core web framework
+# Core web framework (minimal versions)
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 gunicorn==21.2.0
 python-dotenv==1.0.0
 requests==2.31.0
 
-# LangChain - core only
+# LangChain - minimal required
 langchain-core==0.3.0
 langchain-community==0.3.0
 
 # Pinecone client
 pinecone-client==5.0.1
 
-# Optimized for size
-sentence-transformers==2.6.1
+# Optimized PyTorch and Transformers
 torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
+transformers==4.39.3 --no-deps
+sentence-transformers==2.6.1 --no-deps
+
+# Required dependencies for the above
+numpy==1.26.4
+safetensors==0.4.2
+huggingface-hub==0.21.4
+filelock==3.13.1
 
 # Document processing
 pypdf==3.17.4
 
-# Data validation
+# Data validation (minimal)
 pydantic==2.7.4
 typing-extensions==4.9.0
 
