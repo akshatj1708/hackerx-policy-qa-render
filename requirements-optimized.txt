@@ -11,7 +11,7 @@ langchain-huggingface==0.0.3
 
 # Pinecone client
 pinecone-client==5.0.1
-langchain-pinecone==0.0.5
+langchain-pinecone==0.2.11
 
 # Google GenAI integration (lighter than local models)
 langchain-google-genai==0.0.8
