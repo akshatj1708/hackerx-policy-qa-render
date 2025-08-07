@@ -5,13 +5,19 @@ WORKDIR /app
 
 # Install build dependencies and upgrade pip
 RUN apk add --no-cache --virtual .build-deps \
+    g++ \
     gcc \
     musl-dev \
     libffi-dev \
     openssl-dev \
     python3-dev \
-    py3-pip && \
-    pip install --upgrade pip
+    py3-pip \
+    make \
+    cmake \
+    libc6-compat \
+    linux-headers \
+    && pip install --upgrade pip \
+    && pip install --upgrade setuptools wheel
 
 # Install Python dependencies with optimized flags
 COPY requirements-optimized.txt .
