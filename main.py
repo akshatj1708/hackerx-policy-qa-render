@@ -49,12 +49,21 @@ embeddings_model = None
 llm_model = None
 
 def initialize_models():
-    """Initialize models once at startup"""
+    """Initialize models once at startup with memory optimizations"""
     global embeddings_model, llm_model
     if embeddings_model is None:
-        embeddings_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+        # Use a smaller model and enable CPU offloading to reduce memory usage
+        embeddings_model = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model_kwargs={"device": "cpu"},  # Force CPU to save memory
+            encode_kwargs={"normalize_embeddings": False}  # Disable normalization to save memory
+        )
     if llm_model is None:
-        llm_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0, google_api_key=GOOGLE_API_KEY)
+        llm_model = ChatGoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            temperature=0.0,
+            google_api_key=GOOGLE_API_KEY
+        )
     return embeddings_model, llm_model
 
 async def verify_token(auth_header: str = Security(api_key_header)):
