@@ -18,6 +18,56 @@ var/
 wheels/
 *.egg-info/
 .installed.cfg
+
+# Environment and IDE
+.env
+.venv
+venv/
+env/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Local development
+.DS_Store
+Thumbs.db
+
+# Render specific
+.render/
+
+# Version control
+.git/
+.gitignore
+
+# Large files
+*.pdf
+*.zip
+*.tar.gz
+*.rar
+
+# Logs
+*.log
+logs/
+
+# Local configuration
+*.local
+
+# Check size script
+check_size.py
+
+# Virtual environment
+venv/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints
 *.egg
 
 # Virtual Environment

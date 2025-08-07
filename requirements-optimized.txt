@@ -1,34 +1,31 @@
-# Minimal web framework
+# Web framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-gunicorn==21.2.0
 python-dotenv==1.0.0
 
-# LangChain - versions compatible with google-genai
-langchain==0.1.14
+# LangChain core (minimal)
 langchain-core==0.1.52
 langchain-community==0.0.28
 
-# Pinecone client - minimal
+# Pinecone client
 pinecone-client==5.0.1
 
-# Google GenAI integration
+# Google GenAI integration (lighter than local models)
 langchain-google-genai==0.0.8
 
-# Optimized PyTorch and Transformers - CPU only
-torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
-transformers==4.39.3
-sentence-transformers==2.6.1
+# Lightweight embedding model
+sentence-transformers==2.2.2
 
-# Core dependencies
-numpy==1.26.4  # Required by PyTorch and Transformers
-safetensors==0.4.2  # Required by Transformers
-huggingface-hub==0.21.4  # Required for model loading
-filelock==3.13.1  # Required by Transformers
+# Core dependencies with specific versions to minimize size
+numpy==1.26.4
+pydantic==2.7.4
 
-# Minimal document processing
+# Document processing
 pypdf==3.17.4
 
-# Minimal data validation
-pydantic==2.7.4
-typing-extensions==4.9.0
+# Required by sentence-transformers
+transformers==4.36.2
+tokenizers==0.15.1
+
+# Optimized PyTorch (CPU only, minimal)
+torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: hackerx-rag
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements-optimized.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.13
+      - key: PYTHONUNBUFFERED
+        value: true
+      - key: PYTHONPATH
+        value: /
+    disk:
+      name: hackerx-disk
+      mountPath: /data
+      sizeGB: 1
