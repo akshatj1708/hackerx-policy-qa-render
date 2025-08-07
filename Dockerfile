@@ -1,40 +1,51 @@
-# Stage 1: Build stage with Debian slim
+# Stage 1: Build stage with minimal Debian
 FROM python:3.10-slim as builder
 
 WORKDIR /app
 
-# Install build dependencies
+# Install minimal build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ \
-    gcc \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies with optimized flags
-COPY requirements-optimized.txt .
-RUN pip install --no-cache-dir --user -r requirements-optimized.txt
+# Create and use virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Stage 2: Final stage
+# Install only necessary build dependencies first
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install PyTorch CPU only first
+RUN pip install --no-cache-dir torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
+
+# Install other requirements
+COPY requirements-optimized.txt .
+RUN pip install --no-cache-dir -r requirements-optimized.txt
+
+# Stage 2: Final stage - ultra-slim
 FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install runtime dependencies
+# Install only absolutely necessary runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy only the necessary files from the builder stage
-COPY --from=builder /root/.local /root/.local
-COPY . .
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH \
-    PYTHONUNBUFFERED=1 \
+# Copy only necessary application files
+COPY main.py .
+COPY .env.sample .
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     PORT=8000 \
-    PYTHONFAULTHANDLER=1 \
-    PYTHONHASHSEED=0
+    PYTHONFAULTHANDLER=1
 
 # Clean up Python cache
 RUN find /usr/local -type d -name "__pycache__" -exec rm -r {} + \
