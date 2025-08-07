@@ -5,7 +5,7 @@ python-dotenv==1.0.0
 
 # LangChain
 langchain==0.1.12
-langchain-core==0.1.53
+langchain-core>=0.1.52,<0.2.0
 langchain-community==0.0.29
 langchain-huggingface==0.0.3
 
