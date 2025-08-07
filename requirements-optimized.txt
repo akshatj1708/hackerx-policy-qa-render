@@ -16,7 +16,7 @@ pinecone-client==5.0.1
 langchain-google-genai==0.0.8
 
 # Lightweight embedding model
-sentence-transformers==2.2.2
+sentence-transformers>=2.6.0
 
 # Core dependencies with specific versions to minimize size
 numpy==1.26.4
