@@ -5,6 +5,7 @@ gunicorn==21.2.0
 python-dotenv==1.0.0
 
 # LangChain - versions compatible with google-genai
+langchain==0.1.14
 langchain-core==0.1.52
 langchain-community==0.0.28
 
