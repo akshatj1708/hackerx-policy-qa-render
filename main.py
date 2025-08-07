@@ -49,21 +49,45 @@ embeddings_model = None
 llm_model = None
 
 def initialize_models():
-    """Initialize models once at startup with memory optimizations"""
+    """Initialize models with memory optimizations for production"""
     global embeddings_model, llm_model
+    
     if embeddings_model is None:
-        # Use a smaller model and enable CPU offloading to reduce memory usage
-        embeddings_model = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2",
-            model_kwargs={"device": "cpu"},  # Force CPU to save memory
-            encode_kwargs={"normalize_embeddings": False}  # Disable normalization to save memory
-        )
+        try:
+            # Use a smaller model with CPU offloading and memory optimizations
+            embeddings_model = HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2",
+                model_kwargs={
+                    "device": "cpu",
+                    "low_cpu_mem_usage": True,
+                },
+                encode_kwargs={
+                    "normalize_embeddings": False,  # Slight memory saving
+                    "batch_size": 8,  # Reduced batch size for lower memory usage
+                    "show_progress_bar": False  # Disable progress bar for cleaner logs
+                }
+            )
+            logging.info("Embeddings model loaded with memory optimizations")
+            
+        except Exception as e:
+            logging.error(f"Failed to initialize embeddings model: {e}")
+            raise
+    
     if llm_model is None:
-        llm_model = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
-            temperature=0.0,
-            google_api_key=GOOGLE_API_KEY
-        )
+        try:
+            llm_model = ChatGoogleGenerativeAI(
+                model="gemini-1.5-flash",
+                temperature=0.0,
+                google_api_key=GOOGLE_API_KEY,
+                max_retries=3,  # Add retries for reliability
+                request_timeout=60  # 60 second timeout
+            )
+            logging.info("LLM model initialized")
+            
+        except Exception as e:
+            logging.error(f"Failed to initialize LLM: {e}")
+            raise
+    
     return embeddings_model, llm_model
 
 async def verify_token(auth_header: str = Security(api_key_header)):
@@ -363,19 +387,45 @@ async def analyze_document(url: str):
     except Exception as e:
         return {"error": str(e)}
 
-# **STARTUP INITIALIZATION**
-@app.on_event("startup")
-async def startup_event():
-    """Initialize models at startup for fast processing"""
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for FastAPI app"""
+    # Startup
     logging.info("Initializing universal models at startup...")
     initialize_models()
     logging.info("Universal RAG system ready for any document type")
+    yield
+    # Shutdown logic can go here if needed
+
+# Create FastAPI app with lifespan
+app = FastAPI(lifespan=lifespan)
+
+def get_server_config():
+    """Get server configuration based on environment"""
+    port = int(os.environ.get("PORT", 8000))
+    host = "0.0.0.0"
+    return host, port
 
 if __name__ == "__main__":
-    print("🚀 Starting Universal RAG Server...")
+    import uvicorn
+    
+    host, port = get_server_config()
+    
+    print(f"🚀 Starting Universal RAG Server on {host}:{port}...")
     print("📊 Features: Works with ANY document type")
     print("🎯 Target: 70-75% accuracy, <50s latency")
     print("✨ Optimizations: Universal patterns + Smart chunking + Enhanced retrieval")
-    print("📚 API documentation: http://localhost:8000/docs")
-    print("💚 Health check: http://localhost:8000/health")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print(f"📚 API documentation: http://{host}:{port}/docs")
+    print(f"💚 Health check: http://{host}:{port}/health")
+    
+    uvicorn.run(
+        "main:app",
+        host=host,
+        port=port,
+        workers=1,  # Reduce memory usage by using a single worker
+        limit_concurrency=10,  # Limit concurrent connections
+        timeout_keep_alive=30,  # Close idle connections after 30s
+    )
