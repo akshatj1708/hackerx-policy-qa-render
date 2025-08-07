@@ -1,38 +1,28 @@
-# Stage 1: Build stage with minimal Alpine base
-FROM python:3.10-alpine as builder
+# Stage 1: Build stage with Debian slim
+FROM python:3.10-slim as builder
 
 WORKDIR /app
 
-# Install build dependencies and upgrade pip
-RUN apk add --no-cache --virtual .build-deps \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ \
     gcc \
-    musl-dev \
-    libffi-dev \
-    openssl-dev \
     python3-dev \
-    py3-pip \
-    make \
-    cmake \
-    libc6-compat \
-    linux-headers \
-    && pip install --upgrade pip \
-    && pip install --upgrade setuptools wheel
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies with optimized flags
 COPY requirements-optimized.txt .
 RUN pip install --no-cache-dir --user -r requirements-optimized.txt
 
-# Clean up build dependencies
-RUN apk del .build-deps
-
 # Stage 2: Final stage
-FROM python:3.10-alpine
+FROM python:3.10-slim
 
 WORKDIR /app
 
 # Install runtime dependencies
-RUN apk add --no-cache libstdc++
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy only the necessary files from the builder stage
 COPY --from=builder /root/.local /root/.local
@@ -44,9 +34,7 @@ ENV PATH=/root/.local/bin:$PATH \
     PYTHONPATH=/app \
     PORT=8000 \
     PYTHONFAULTHANDLER=1 \
-    PYTHONHASHSEED=0 \
-    PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128 \
-    PYTORCH_NO_CUDA_MEMORY_CACHING=1
+    PYTHONHASHSEED=0
 
 # Clean up Python cache
 RUN find /usr/local -type d -name "__pycache__" -exec rm -r {} + \
