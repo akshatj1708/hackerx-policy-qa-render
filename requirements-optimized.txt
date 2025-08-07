@@ -5,7 +5,7 @@ python-dotenv==1.0.0
 
 # LangChain
 langchain==0.0.352
-langchain-core==0.0.38
+langchain-core==0.0.53
 langchain-community==0.0.20
 
 # Pinecone client
