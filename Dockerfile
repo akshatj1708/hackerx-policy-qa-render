@@ -48,7 +48,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY main.py .
 COPY .env.sample .
 
-# Set environment variables
+# Set environment variables with default values
 ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     PORT=8000 \
@@ -58,8 +58,16 @@ ENV PYTHONUNBUFFERED=1 \
 RUN find /usr/local -type d -name "__pycache__" -exec rm -r {} + 2>/dev/null || true \
     && find /usr/local -name "*.pyc" -delete 2>/dev/null || true
 
+# Create a start script to handle the PORT variable
+RUN echo '#!/bin/sh\n\
+set -e\n\n# Use the PORT environment variable if set, otherwise default to 8000\nPORT=${PORT:-8000}\n\n# Start Gunicorn with the specified port\nexec gunicorn main:app \
+    --workers 4 \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:$PORT' > /app/start.sh \
+    && chmod +x /app/start.sh
+
 # Expose the port the app runs on
 EXPOSE $PORT
 
-# Command to run the application with optimized Gunicorn settings
-CMD ["gunicorn", "main:app", "--workers", "1", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:$PORT", "--timeout", "120"]
+# Run the application using the start script
+CMD ["/app/start.sh"]
