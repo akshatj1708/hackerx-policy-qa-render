@@ -4,9 +4,9 @@ uvicorn[standard]==0.24.0
 python-dotenv==1.0.0
 
 # LangChain
-langchain==0.0.352
+langchain==0.1.12
 langchain-core==0.1.53
-langchain-community==0.0.20
+langchain-community==0.0.29
 
 # Pinecone client
 pinecone-client==5.0.1
